@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="sqltools" default="run" basedir=".">
+	<property name="src.dir" value="src"></property>
+	<property name="test.dir" value="test" />
+	<property name="build.dir" value="bin"></property>
+	<property name="classes.dir" value="bin" />
+	<property name="ruby.dir" value="rubys"></property>
+	<property name="headers.dir" value="headers"></property>
+	<property name="lib.dir" value="lib"></property>
+	
+	<property name="dict.dir" value="${build.dir}/jsons"></property>
+	
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"></fileset>
+	</path>
+	
+	<target name="init">
+		<mkdir dir="${classes.dir}" />
+	</target>
+	
+	<target name="compile" depends="init">
+		<javac srcdir="${src.dir};${test.dir}" 
+			destdir="${classes.dir}"
+			classpathref="classpath">
+			
+			<include name="**/*.java" />
+			<compilerarg line="-encoding UTF-8"/>
+		</javac>
+		<copy todir="${classes.dir}">
+			<fileset dir="${src.dir}" excludes="**.*.jar" />
+		</copy>
+		<copy todir="${classes.dir}">
+			<fileset dir="${test.dir}" excludes="**.*jar" />
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<echo>clean path: ${classes.dir}</echo>
+		<delete dir="${classes.dir}" />
+	</target>
+	
+	<target name="analyze">
+		<echo>analyze C++ header file</echo>
+		<exec executable="ruby">
+			<arg value="${ruby.dir}/analyze.rb" />			
+		</exec>
+	</target>
+	
+	<target name="run" depends="analyze,compile">
+		<java fork="true" classname="tools.SqlTools" 
+			classpathref="classpath">
+			
+			<classpath path="${classes.dir}" />			
+			<arg value="192.168.1.47"/>
+			<arg value="sa" />
+			<arg value="1" />
+		</java>
+	</target>
+	
+</project>
