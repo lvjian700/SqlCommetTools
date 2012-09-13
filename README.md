@@ -36,6 +36,65 @@ src/ 目录下是Java程序, 用来分析ruby生成的json数据, 将注释更�
 	cd SqlCommetTools
 	ant	
 
+###核心代码说明
+---
+
+####使用ruby分析C++程序语法
+
+1.原理	
+
+1. 逐行读取C++源码文件
+2. 使用正则表达式匹配Struct, 属性, 注释	
+
+2.ruby中逐行读取文件
+
+	File.open(File.dirname(__FILE__) + "/../headers/dyulctaskdefine.h").each_line do |line |
+		# do something....
+	end	
+
+3.使用正则表达式匹配Struct,属性,注释	
+
+	File.open(File.dirname(__FILE__) + "/../headers/dyulctaskdefine.h").each_line do |line |
+		#match Struct
+		structMatch = /^struct\s+(\w+)/.match(line)
+		structName  = structMatch[1]
+
+		#match 属性, 注释
+		propMatch = /(\w*);\s*\/{2}([^x00-xff]*)\n/.match(line)
+		propName = propMatch[1]
+		propComment = propMatch[2]
+	end	
+
+####如何使用sql语句修改数据库注释	
+
+	--表及字段描述信息处理示例
+
+	--创建表
+	create table 表(a1 varchar(10),a2 char(2))
+
+	--为表添加描述信息
+	EXECUTE sp_addextendedproperty N'MS_Description', '人员信息表', N'user', N'dbo', N'table', N'表', NULL, NULL
+
+	--为字段a1添加描述信息
+	EXECUTE sp_addextendedproperty N'MS_Description', '姓名', N'user', N'dbo', N'table', N'表', N'column', N'a1'
+
+	--为字段a2添加描述信息
+	EXECUTE sp_addextendedproperty N'MS_Description', '性别', N'user', N'dbo', N'table', N'表', N'column', N'a2'
+
+	--更新表中列a1的描述属性：
+	EXEC sp_updateextendedproperty 'MS_Description','字段1','user',dbo,'table','表','column',a1
+
+	--显示表的描述属性
+	SELECT   *
+	FROM   ::fn_listextendedproperty (NULL, 'user', 'dbo', 'table', '表', 'column', NULL)
+
+	--删除表中列a1的描述属性：
+	EXEC sp_dropextendedproperty 'MS_Description','user',dbo,'table','表','column',a1
+
+	--删除测试
+	drop table 表	
+
+
 
 
 
