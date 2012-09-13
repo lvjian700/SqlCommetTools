@@ -31,9 +31,11 @@ src/ 目录下是Java程序, 用来分析ruby生成的json数据, 将注释更�
 	cd SqlCommetTools/ruby
 	bundle install	
 
-3. 运行Ant脚本
+3.运行Ant脚本
 
 	cd SqlCommetTools
 	ant	
+
+
 
 
